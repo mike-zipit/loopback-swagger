@@ -1,3 +1,45 @@
+2017-09-05, Version 5.0.0
+=========================
+
+ * Enable 'updateOnly' feature based on generateOperationScopedModels (#99) (Rashmi Hunt)
+
+ * Bump version to 5.0.0 (Raymond Feng)
+
+ * Set required to be true for path parameters (Raymond Feng)
+
+
+2017-08-22, Version 4.2.0
+=========================
+
+ * Support updateOnly feature (#92) (Rashmi Hunt)
+
+ * Add stalebot configuration (Kevin Delisle)
+
+ * Update Issue and PR Templates (#95) (Sakib Hasan)
+
+
+2017-08-14, Version 4.1.0
+=========================
+
+ * Allow externalDocs and custom names for models (Zak Barbuto)
+
+ * Add support for file-type parameters (Zak Barbuto)
+
+ * Add community maintainers to CODEOWNERS (Miroslav Bajtoš)
+
+ * Add CODEOWNER file (Diana Lau)
+
+ * Update eslint config to the latest (Miroslav Bajtoš)
+
+
+2017-04-27, Version 4.0.3
+=========================
+
+ * type-registry: add DateString type (Kevin Delisle)
+
+ * Travis CI config (Kevin Delisle)
+
+
 2017-03-02, Version 4.0.2
 =========================
 

@@ -103,6 +103,20 @@ describe('route-helper', function() {
       });
   });
 
+  it('converts { type: file\' } to { schema: { type: \'file\' } }', function() {
+    var TestModel = loopback.createModel('TestModel', {street: String});
+    var entry = createAPIDoc({
+      accepts: [
+        {name: 'changes', type: 'file'},
+      ],
+    });
+    var paramDoc = entry.operation.parameters[0];
+    expect(paramDoc).to.have.property('type', 'file');
+    expect(paramDoc).to.have.property('in', 'form');
+    expect(paramDoc).to.have.property('allowMultiple', false);
+    expect(paramDoc).to.have.property('description', 'File to upload');
+  });
+
   it('converts path params when they exist in the route name', function() {
     var entry = createAPIDoc({
       accepts: [
@@ -113,7 +127,20 @@ describe('route-helper', function() {
     var paramDoc = entry.operation.parameters[0];
     expect(paramDoc).to.have.property('in', 'path');
     expect(paramDoc).to.have.property('name', 'id');
-    expect(paramDoc).to.have.property('required', false);
+    expect(paramDoc).to.have.property('required', true);
+  });
+
+  it('sets required to be true for path params', function() {
+    var entry = createAPIDoc({
+      accepts: [
+        {arg: 'id', type: 'string', http: {source: 'path'}},
+      ],
+      path: '/test/:id',
+    });
+    var paramDoc = entry.operation.parameters[0];
+    expect(paramDoc).to.have.property('in', 'path');
+    expect(paramDoc).to.have.property('name', 'id');
+    expect(paramDoc).to.have.property('required', true);
   });
 
   // FIXME need regex in routeHelper.acceptToParameter
@@ -419,6 +446,14 @@ describe('route-helper', function() {
     expect(param)
       .to.have.property('schema')
       .eql({$ref: '#/definitions/User'});
+  });
+
+  it('allows a custom `tag` name to be set', function() {
+    var doc = createAPIDoc(
+      {},
+      {name: 'User', ctor: {settings: {swagger: {tag: {name: 'Member'}}}}});
+    expect(doc.operation.tags[0])
+      .to.eql('Member');
   });
 });
 

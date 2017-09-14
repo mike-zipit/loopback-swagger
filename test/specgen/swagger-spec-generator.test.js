@@ -128,7 +128,7 @@ describe('swagger definition', function() {
       var app = createLoopbackAppWithModel();
       var swaggerResource = createSwaggerObject(app);
       expect(swaggerResource.tags).to.eql([
-        {name: 'Product', description: 'a-description\nline2'},
+        {name: 'Product', description: 'a-description\nline2', externalDocs: undefined},
       ]);
     });
   });
@@ -409,20 +409,128 @@ describe('swagger definition', function() {
     });
   });
 
-  function createLoopbackAppWithModel(apiRoot) {
+  describe('updateOnly', function() {
+    it('should generate two swagger model definitions when forceId is undefined',
+        function() {
+          // forceId is undefined since forceId is not passed into the model
+          var app = createLoopbackAppWithModel();
+          var swaggerResource = createSwaggerObject(app, {
+            generateOperationScopedModels: true,
+          });
+          // Additional swagger object - $new_Product is generated since Product
+          // model has generated ID and forceId is not set to false. This object
+          // is used for create operation where it excludes 'id' property
+          expect(Object.keys(swaggerResource.definitions))
+              .to.include.members(['$new_Product', 'Product']);
+        });
+
+    it('should generate two swagger model definitions when forceId is true', function() {
+      const options = {
+        forceId: true,
+      };
+      var app = createLoopbackAppWithModel(options);
+      var swaggerResource = createSwaggerObject(app, {
+        generateOperationScopedModels: true,
+      });
+      // Additional swagger object - $new_Product is generated since Product
+      // model has generated ID and forceId is not set to false. This object
+      // is used for create operation where it excludes 'id' property
+      expect(Object.keys(swaggerResource.definitions))
+          .to.include.members(['$new_Product', 'Product']);
+    });
+
+    it('should generate one swagger model definition when forceId is false', function() {
+      const options = {
+        forceId: false,
+      };
+      var app = createLoopbackAppWithModel(options);
+      var swaggerResource = createSwaggerObject(app, {
+        generateOperationScopedModels: true,
+      });
+      expect(Object.keys(swaggerResource.definitions))
+          .to.not.include(['$new_Product']);
+      expect(Object.keys(swaggerResource.definitions))
+          .to.include.members(['Product']);
+    });
+
+    it('should use $new_Product definition for post/create operation when ' +
+        'forceId is in effect', function() {
+      var app = createLoopbackAppWithModel();
+      var swaggerResource = createSwaggerObject(app, {
+        generateOperationScopedModels: true,
+      });
+      // Post(create) operation should reference $new_Product
+      expect(swaggerResource.paths['/Products'].post.parameters[0].schema.$ref)
+          .to.equal('#/definitions/$new_Product');
+      // patch or any other operation should reference Product
+      expect(swaggerResource.paths['/Products'].patch.parameters[0].schema.$ref)
+          .to.equal('#/definitions/Product');
+    });
+
+    it('should use Product swagger definition for all operations when ' +
+        'forceId is false', function() {
+      const options = {
+        forceId: false,
+      };
+      var app = createLoopbackAppWithModel(options);
+      var swaggerResource = createSwaggerObject(app, {
+        generateOperationScopedModels: true,
+      });
+      // post(create), patch or any other operation should reference Product
+      expect(swaggerResource.paths['/Products'].post.parameters[0].schema.$ref)
+          .to.equal('#/definitions/Product');
+      expect(swaggerResource.paths['/Products'].patch.parameters[0].schema.$ref)
+          .to.equal('#/definitions/Product');
+    });
+
+    it('should generate one swagger model definitions when ' +
+        'generateOperationScopedModels is false',
+        function() {
+          var app = createLoopbackAppWithModel();
+          var swaggerResource = createSwaggerObject(app, {
+            generateOperationScopedModels: false,
+          });
+          // when generateOperationScopedModels is false, then even if forceId is true and
+          // generated id is true there will be only one model (Product) generated.
+          expect(Object.keys(swaggerResource.definitions))
+              .to.not.include(['$new_Product']);
+          expect(Object.keys(swaggerResource.definitions))
+              .to.include.members(['Product']);
+        });
+
+    it('should generate one swagger model definitions when ' +
+        'generateOperationScopedModels is undefined(false)',
+        function() {
+          var app = createLoopbackAppWithModel();
+          var swaggerResource = createSwaggerObject(app);
+          // when generateOperationScopedModels is undefined the value defaults to false. Then even if
+          // forceId is true and generated id is true there will be only one model (Product) generated.
+          expect(Object.keys(swaggerResource.definitions))
+              .to.not.include(['$new_Product']);
+          expect(Object.keys(swaggerResource.definitions))
+              .to.include.members(['Product']);
+        });
+  });
+
+  function createLoopbackAppWithModel(options) {
     var app = loopback();
 
     app.dataSource('db', {connector: 'memory'});
+
+    const modelSettings = {description: ['a-description', 'line2']};
+    if (options && options.forceId !== undefined) {
+      modelSettings.forceId = options.forceId;
+    }
 
     var Product = loopback.createModel('Product', {
       foo: {type: 'string', required: true},
       bar: 'string',
       aNum: {type: 'number', min: 1, max: 10, required: true, default: 5},
-    }, {description: ['a-description', 'line2']});
+    }, modelSettings);
     app.model(Product, {dataSource: 'db'});
 
     // Simulate a restApiRoot set in config
-    app.set('restApiRoot', apiRoot || '/api');
+    app.set('restApiRoot', options && options.apiRoot || '/api');
     app.use(app.get('restApiRoot'), loopback.rest());
 
     return app;
