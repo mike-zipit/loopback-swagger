@@ -112,7 +112,7 @@ describe('route-helper', function() {
     });
     var paramDoc = entry.operation.parameters[0];
     expect(paramDoc).to.have.property('type', 'file');
-    expect(paramDoc).to.have.property('in', 'form');
+    expect(paramDoc).to.have.property('in', 'formData');
     expect(paramDoc).to.have.property('allowMultiple', false);
     expect(paramDoc).to.have.property('description', 'File to upload');
   });
@@ -165,6 +165,20 @@ describe('route-helper', function() {
     expect(paramDoc).to.have.property('in', 'query');
     expect(paramDoc).to.have.property('type', 'string');
     expect(paramDoc).to.have.property('format', 'byte');
+  });
+
+  it('correctly removes undocumented accepts', function() {
+    var doc = createAPIDoc({
+      accepts: [
+        {arg: 'id', type: 'string'},
+        {arg: 'undocumented', type: 'string', documented: false},
+      ],
+    });
+    expect(doc.operation.parameters.length).to.equal(1);
+    var paramDoc = doc.operation.parameters[0];
+    expect(paramDoc).to.have.property('in', 'query');
+    expect(paramDoc).to.have.property('type', 'string');
+    expect(paramDoc).to.have.property('name', 'id');
   });
 
   it('correctly converts return types (arrays)', function() {
@@ -385,6 +399,18 @@ describe('route-helper', function() {
     });
     expect(doc.operation.responses).to.not.have.property(200);
     expect(doc.operation.responses).to.not.have.property(204);
+  });
+
+  it('supports example responses', function() {
+    var doc = createAPIDoc({
+      returns: [
+        {arg: 'something', http: {source: 'body'}, example: {foo: 'bar'}},
+      ],
+      path: '/test',
+    });
+    expect(doc.operation.responses['200']).to.property('examples');
+    expect(doc.operation.responses['200'].examples).to.have.property('application/json');
+    expect(doc.operation.responses['200'].examples['application/json']).to.eql({foo: 'bar'});
   });
 
   it('includes custom http error status code in `responseMessages`', function() {

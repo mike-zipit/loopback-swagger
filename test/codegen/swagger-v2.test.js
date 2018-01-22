@@ -11,7 +11,9 @@ var V2Generator = require('../../lib/codegen/generator-v2');
 var petStoreV2Spec = require('../../example/pet-store-2.0.json');
 var pet2 = require('./pet-expanded.json');
 var pet3 = require('./pet-without-tags.json');
+var pet4 = require('./pet-with-embedded-schema.json');
 var note = require('./note.json');
+var pet5 = require('./pet-with-refs.json');
 var generator = new V2Generator();
 
 describe('Swagger spec v2 generator', function() {
@@ -32,6 +34,18 @@ describe('Swagger spec v2 generator', function() {
 
   it('parse operations', function() {
     var operations = generator.getOperations(pet2);
+    expect(operations['/pet-app/pets'].get.returns).to.eql(
+      [{
+        description: 'pet response',
+        type: ['pet'],
+        arg: 'data',
+        root: true,
+      }]
+    );
+  });
+
+  it('parse operations with $REF', function() {
+    var operations = generator.getOperations(pet5);
     expect(operations['/pet-app/pets'].get.returns).to.eql(
       [{
         description: 'pet response',
@@ -71,5 +85,29 @@ describe('Swagger spec v2 generator', function() {
     expect(operations['/createWithList']).to.have.property('post');
     var op = operations['/createWithList']['post'];
     expect(op.operationId).to.eql('createUsersWithListInput');
+  });
+
+  it('generates remote methods without definitions', function() {
+    var code = generator.generateRemoteMethods(pet4,
+      {modelName: 'Pet'});
+    expect(code.Pet).contain(
+      'Pet.findPets = function(x_tags, x_limit, callback)');
+  });
+
+  it('generates embedded models', function() {
+    var code = generator.generateRemoteMethods(pet4);
+    expect(pet4.definitions).to.eql({
+      'findPets_response_200': {
+        name: 'findPets_response_200',
+        properties: {
+          id: {
+            type: 'number', required: true, format: 'int64',
+          },
+          name: {
+            type: 'string', required: true,
+          },
+        },
+      },
+    });
   });
 });

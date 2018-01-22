@@ -1,3 +1,53 @@
+2017-12-04, Version 5.5.0
+=========================
+
+ * Improve support for $ref (Raymond Feng)
+
+
+2017-11-21, Version 5.4.0
+=========================
+
+ * Handle embedded schemas for parameter/response (Raymond Feng)
+
+
+2017-11-21, Version 5.3.0
+=========================
+
+ * Add support for examples in models and responses (Zak Barbuto)
+
+
+2017-11-20, Version 5.2.2
+=========================
+
+ * Improve swagger mapping (Raymond Feng)
+
+ * chore: update license (Diana Lau)
+
+
+2017-10-27, Version 5.2.1
+=========================
+
+ * Fix file upload attachments (Zak Barbuto)
+
+
+2017-10-27, Version 5.2.0
+=========================
+
+ * feat(route-helper): Add 'documented' flag for hiding params (Samuel Reed)
+
+
+2017-10-13, Version 5.1.0
+=========================
+
+ * update strong-globalize to 3.1.0 (shimks)
+
+ * CODEOWNERS: add zbarbuto (Miroslav Bajtoš)
+
+ * update globalize string (Diana Lau)
+
+ * fix basePath, add store.json (wing328)
+
+
 2017-09-05, Version 5.0.0
 =========================
 
