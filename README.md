@@ -4,19 +4,35 @@ Utilities to transform between Swagger API specs and LoopBack remoting metadata.
 
 This is an internal module used by the following user-facing tools:
 
- - [slc loopback:swagger](https://docs.strongloop.com/display/LB/Swagger+generator)
- - [loopback-explorer](https://github.com/strongloop/loopback-explorer)
+ - [slc loopback:swagger](https://github.com/strongloop/loopback-swagger)
+ - [loopback-component-explorer](https://github.com/strongloop/loopback-component-explorer)
+ 
+---
+# Swagger-ui v3 with Security
 
-## Todo
+This is a WIP fork of advanced swagger.json OAuth2 support for Loopback using latest swagger-ui (currently 3.9)
 
-- [ ]  Write automated tests
+## Key Repositories
+
+- [drmikecrowe: loopback-component-explorer](https://github.com/drmikecrowe/loopback-component-explorer)
+- [drmikecrowe: loopback-swagger](https://github.com/drmikecrowe/loopback-swagger) 
+ 
+## SwaggerUI v3 Support Status
+
+- [x]  Integrate v3 of the SwaggerUI (using [swagger-ui-dist](https://www.npmjs.com/package/swagger-ui-dist))
+- [x]  securityDefinitions Support
+- [ ]  Integrate with [loopback-component-explorer](https://github.com/strongloop/loopback-component-explorer).
+  - [x] Update explorer to use new Swagger-UI
+  - [ ] Test and document using oauth2-redirect for OAuth2 local development
+- [ ]  Update automated tests
 - [ ]  Review loopback style guide
 
-## Oauth2 Security
+## Setup
 
-This is a WIP fork of advanced swagger.json (v2) OAuth2 support for Loopback.
+### TEMPORARILY: Specify `drmikecrowe` loopback-component-explorer
 
-### Setup
+
+### Add detailed API info to your `component-config`
 
 In your component-config.local.js, OAuth2 configuration may be specified as follows:
 
