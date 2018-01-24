@@ -31,6 +31,8 @@ This is a WIP fork of advanced swagger.json OAuth2 support for Loopback using la
 
 ### TEMPORARILY: Specify `drmikecrowe` loopback-component-explorer
 
+    "dependencies": {
+      "loopback-swagger": "drmikecrowe/loopback-swagger#semver:^6.0",
 
 ### Add detailed API info to your `component-config`
 
