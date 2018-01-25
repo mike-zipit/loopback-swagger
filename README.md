@@ -21,18 +21,31 @@ This is a WIP fork of advanced swagger.json OAuth2 support for Loopback using la
 
 - [x]  Integrate v3 of the SwaggerUI (using [swagger-ui-dist](https://www.npmjs.com/package/swagger-ui-dist))
 - [x]  securityDefinitions Support
-- [ ]  Integrate with [loopback-component-explorer](https://github.com/strongloop/loopback-component-explorer).
+- [x]  Integrate with [loopback-component-explorer](https://github.com/strongloop/loopback-component-explorer).
   - [x] Update explorer to use new Swagger-UI
-  - [ ] Test and document using oauth2-redirect for OAuth2 local development
+  - [x] Test and document using oauth2-redirect for OAuth2 local development
+- [ ] Tested Grant Types
+  - [x] implicit
+  - [ ] jwt
+  - [ ] clientCredentials 
+  - [x] authorizationCode 
+  - [x] refreshToken 
+  - [ ] resourceOwnerPasswordCredentials
+- [ ]  Review @raymongfeng realm discussions and determine insure this strategy meets Strongloop plans 
 - [ ]  Update automated tests
 - [ ]  Review loopback style guide
 
-## Setup
+## Installation
 
-### TEMPORARILY: Specify `drmikecrowe` loopback-component-explorer
+- See [drmikecrowe: loopback-component-explorer README](https://github.com/drmikecrowe/loopback-component-explorer) for current installation instructions
 
-    "dependencies": {
-      "loopback-swagger": "drmikecrowe/loopback-swagger#semver:^6.0",
+### Development redirectURIs
+
+For development only, you may add the following redirectURI to your applications object (assuming your API is running on localhost:3001, and your authentication server is running on localhost:3000):
+
+    "redirectURIs" : [
+        "http://localhost:3001/explorer/oauth2-redirect.html"
+    ], 
 
 ### Add detailed API info to your `component-config`
 
