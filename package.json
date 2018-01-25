@@ -1,6 +1,6 @@
 {
   "name": "loopback-swagger",
-  "version": "6.0.0-drmikecrowe1",
+  "version": "6.0.0-drmikecrowe2",
   "description": "Integration between LoopBack and Swagger API specs",
   "engines": {
     "node": ">=4"
