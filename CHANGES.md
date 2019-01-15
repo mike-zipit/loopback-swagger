@@ -1,3 +1,47 @@
+2019-01-07, Version 5.7.3
+
+ * Merge securityDefinitions back into latest
+
+2019-01-07, Version 5.7.2
+=========================
+
+ * Fix route helper to ignore status/header retvals (Y.Shing)
+
+
+2018-10-18, Version 5.7.1
+=========================
+
+ * README: update LTS status (Miroslav Bajtoš)
+
+
+2018-08-30, Version 5.7.0
+=========================
+
+ * specgen: Retrieve description from package.json (Melle Boersma)
+
+ * Upgrade eslint-config-loopback + fix formatting (Miroslav Bajtoš)
+
+
+2018-07-10, Version 5.6.0
+=========================
+
+ * specgen: emit correct non-root return types (Dan Jarvis)
+
+ * Update mocha & chai to latest (Miroslav Bajtoš)
+
+ * Disable package-lock feature of npm (Miroslav Bajtoš)
+
+ * Update eslint + config to latest (Miroslav Bajtoš)
+
+ * Update strong-globalize and debug to latest (Miroslav Bajtoš)
+
+ * Travis: add Node.js 8.x and 10.x (Miroslav Bajtoš)
+
+ * Drop support for Node.js 4.x (Miroslav Bajtoš)
+
+ * [WebFM] cs/pl/ru translation (candytangnb)
+
+
 2017-12-04, Version 5.5.0
 =========================
 

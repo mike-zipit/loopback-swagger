@@ -13,8 +13,8 @@ var loopback = require('loopback');
 
 describe('route-helper', function() {
   it('returns "object" when a route has multiple return values', function() {
-    var TestModel = loopback.createModel('TestModel', {street: String});
-    var entry = createAPIDoc({
+    const TestModel = loopback.createModel('TestModel', {street: String});
+    const remotingSpec = {
       returns: [
         {arg: 'max', type: 'number'},
         {arg: 'min', type: 'number'},
@@ -28,8 +28,11 @@ describe('route-helper', function() {
         {name: 'unknownModel', type: 'UnknownModel'},
         {name: 'requiredStr', type: String, required: true},
       ],
-    });
-    var responseMessage = getResponseMessage(entry.operation);
+    };
+    const typeRegistry = new TypeRegistry();
+    typeRegistry.registerLoopbackType(TestModel.definition.name, TestModel.definition);
+    const entry = createAPIDoc(remotingSpec, null, typeRegistry);
+    const responseMessage = getResponseMessage(entry.operation);
     (((responseMessage || {}).schema || {}).required || []).sort(); // sort the array for the comparison below
     expect(responseMessage)
       .to.have.property('schema').eql({
@@ -46,25 +49,25 @@ describe('route-helper', function() {
             type: 'array',
           },
           testModel: {
-            type: 'object', // TODO - emit '$ref': '#/definitions/TestModel' after registering it
+            $ref: '#/definitions/TestModel',
           },
           testModelArray: {
             items: {
-              type: 'object', // TODO - emit '$ref': '#/definitions/TestModel' after registering it
+              $ref: '#/definitions/TestModel',
             },
             type: 'array',
           },
           testModelArrayArray: {
             items: {
               items: {
-                type: 'object', // TODO - emit '$ref': '#/definitions/TestModel' after registering it
+                $ref: '#/definitions/TestModel',
               },
               type: 'array',
             },
             type: 'array',
           },
           testModelStr: {
-            type: 'object', // TODO - emit '$ref': '#/definitions/TestModel' after registering it
+            $ref: '#/definitions/TestModel',
           },
           unknownModel: {
             type: 'object', // unknown model is converted to plain object
@@ -74,6 +77,22 @@ describe('route-helper', function() {
         required: [
           'requiredStr',
         ],
+      });
+  });
+
+  it('does not include arguments having http.target set to header|status', function() {
+    var TestModel = loopback.createModel('TestModel', {street: String});
+    var entry = createAPIDoc({
+      returns: [
+        {name: 'changes', type: 'ReadableStream'},
+        {name: 'status', type: 'number', http: {target: 'status'}},
+        {name: 'header', type: 'string', http: {target: 'header'}},
+      ],
+    });
+    var responseMessage = getResponseMessage(entry.operation);
+    expect(responseMessage)
+      .to.have.property('schema').eql({
+        type: 'file',
       });
   });
 
@@ -181,7 +200,7 @@ describe('route-helper', function() {
     expect(paramDoc).to.have.property('name', 'id');
   });
 
-  it('correctly converts return types (arrays)', function() {
+  it('correctly converts root return types (arrays)', function() {
     var doc = createAPIDoc({
       returns: [
         {arg: 'data', type: ['customType'], root: true},
@@ -193,6 +212,59 @@ describe('route-helper', function() {
     expect(responseSchema).to.have.property('type', 'array');
     expect(responseSchema).to.have.property('items')
       .eql({$ref: '#/definitions/customType'});
+  });
+
+  it('correctly converts non root return types (arrays)', function() {
+    const doc = createAPIDoc({
+      returns: [
+        {arg: 'data', type: ['customType']},
+      ],
+    });
+    const opDoc = doc.operation;
+
+    const responseSchema = getResponseMessage(opDoc).schema;
+    expect(responseSchema)
+      .to.eql({
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+            },
+          },
+        },
+      });
+  });
+
+  it('correctly converts registered non root return types', function() {
+    const customType = loopback.createModel('customType', {foo: String});
+    const typeRegistry = new TypeRegistry();
+    typeRegistry.registerLoopbackType(customType.definition.name, customType.definition);
+    const remotingSpec = {
+      returns: [
+        {
+          arg: 'data',
+          type: ['customType'],
+        },
+      ],
+    };
+    const doc = createAPIDoc(remotingSpec, null, typeRegistry);
+    const opDoc = doc.operation;
+
+    const responseSchema = getResponseMessage(opDoc).schema;
+    expect(responseSchema)
+      .to.eql({
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              $ref: '#/definitions/customType',
+            },
+          },
+        },
+      });
   });
 
   it('correctly converts return types (format)', function() {
@@ -221,7 +293,8 @@ describe('route-helper', function() {
       var f = routeHelper.acceptToParameter(
         {verb: 'get', path: 'path'},
         A_CLASS_DEF,
-        new TypeRegistry());
+        new TypeRegistry()
+      );
       var result = f({description: ['1', '2', '3']});
       expect(result.description).to.eql('1\n2\n3');
     });
@@ -230,7 +303,8 @@ describe('route-helper', function() {
       var f = routeHelper.acceptToParameter(
         {verb: 'put', path: 'path'},
         A_CLASS_DEF,
-        new TypeRegistry());
+        new TypeRegistry()
+      );
       var result = f({http: {source: 'form'}});
       expect(result.in).to.equal('formData');
     });
@@ -432,7 +506,8 @@ describe('route-helper', function() {
   it('adds class name to `tags`', function() {
     var doc = createAPIDoc(
       {method: 'User.login'},
-      {name: 'User'});
+      {name: 'User'}
+    );
     expect(doc.operation.tags).to.contain('User');
   });
 
@@ -450,7 +525,8 @@ describe('route-helper', function() {
       {
         accepts: [{arg: 'data', type: 'object', http: {source: 'body'}}],
       },
-      {name: 'User'});
+      {name: 'User'}
+    );
     var param = doc.operation.parameters[0];
     expect(param)
       .to.have.property('schema')
@@ -467,7 +543,8 @@ describe('route-helper', function() {
           http: {source: 'body'},
         }],
       },
-      {name: 'User'});
+      {name: 'User'}
+    );
     var param = doc.operation.parameters[0];
     expect(param)
       .to.have.property('schema')
@@ -477,19 +554,22 @@ describe('route-helper', function() {
   it('allows a custom `tag` name to be set', function() {
     var doc = createAPIDoc(
       {},
-      {name: 'User', ctor: {settings: {swagger: {tag: {name: 'Member'}}}}});
+      {name: 'User', ctor: {settings: {swagger: {tag: {name: 'Member'}}}}}
+    );
     expect(doc.operation.tags[0])
       .to.eql('Member');
   });
 });
 
 // Easy wrapper around createRoute
-function createAPIDoc(def, classDef) {
+function createAPIDoc(def, classDef, typeRegistry) {
+  if (!typeRegistry) typeRegistry = new TypeRegistry();
+
   return routeHelper.routeToPathEntry(_defaults(def || {}, {
     path: '/test',
     verb: 'GET',
     method: 'test.get',
-  }), classDef, new TypeRegistry(), Object.create(null));
+  }), classDef, typeRegistry, Object.create(null));
 }
 
 function getResponseMessage(operationDoc) {

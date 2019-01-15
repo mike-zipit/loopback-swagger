@@ -56,7 +56,7 @@ describe('Swagger spec v2 generator', function() {
     );
   });
 
-  it('generates remote methods', function() {
+  it('generates remote methods from expanded spec', function() {
     var code = generator.generateRemoteMethods(pet2,
       {modelName: 'Pet'}).Pet;
     expect(code).contain('Pet.findPets = function(tags, limit, callback)');
@@ -69,7 +69,8 @@ describe('Swagger spec v2 generator', function() {
     expect(code).contain('Pet.remoteMethod(\'createPet\'');
     expect(code).contain('type: [ \'pet\' ],');
     expect(code).contain(
-      'Pet.find({limit: limit, where: {inq: tags}}, callback);');
+      'Pet.find({limit: limit, where: {inq: tags}}, callback);'
+    );
     expect(code).contain('Pet.create(pet, callback);');
     expect(code).contain('Pet.findById(id, callback);');
   });
@@ -91,7 +92,8 @@ describe('Swagger spec v2 generator', function() {
     var code = generator.generateRemoteMethods(pet4,
       {modelName: 'Pet'});
     expect(code.Pet).contain(
-      'Pet.findPets = function(x_tags, x_limit, callback)');
+      'Pet.findPets = function(x_tags, x_limit, callback)'
+    );
   });
 
   it('generates embedded models', function() {
