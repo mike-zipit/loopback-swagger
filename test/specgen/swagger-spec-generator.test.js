@@ -55,6 +55,40 @@ describe('swagger definition', function() {
     });
   });
 
+  describe('provides securityDefinitions specified in the config', () => {
+    it('populates securityDefitions with the correct info', function() {
+      var app = createLoopbackAppWithModel();
+      var swaggerResource = createSwaggerObject(app, {
+        securityDefinitions: {
+          'api_key': {
+            type: 'apiKey',
+            name: 'Authorization',
+            in: 'header',
+          },
+        },
+      });
+      var secDef = swaggerResource.securityDefinitions;
+      expect(secDef.api_key.type).to.equal('apiKey');
+      expect(secDef.api_key.name).to.equal('Authorization');
+      expect(secDef.api_key.in).to.equal('header');
+    });
+  });
+
+  describe('provides security array in the config', () => {
+    it('populates security with the correct info', function() {
+      var app = createLoopbackAppWithModel();
+      var swaggerResource = createSwaggerObject(app, {
+        security: [
+          {
+            api_key: [], // eslint-disable-line camelcase
+          },
+        ],
+      });
+      var sec = swaggerResource.security[0].api_key;
+      expect(sec).to.have.length(0);
+    });
+  });
+
   describe('basePath', function() {
     it('is "{basePath}" when basePath is a path', function() {
       var app = createLoopbackAppWithModel();
